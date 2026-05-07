@@ -1,0 +1,14 @@
+ticker,name,sector,weight,market_value
+XOM,Exxon Mobil Corp,Energy,0.08,80000
+CVX,Chevron Corp,Energy,0.06,60000
+NEE,NextEra Energy Inc,Utilities,0.07,70000
+JPM,JPMorgan Chase & Co,Financials,0.10,100000
+AAPL,Apple Inc,Technology,0.12,120000
+MSFT,Microsoft Corp,Technology,0.10,100000
+JNJ,Johnson & Johnson,Health Care,0.08,80000
+CAT,Caterpillar Inc,Industrials,0.07,70000
+LIN,Linde PLC,Materials,0.06,60000
+PG,Procter & Gamble Co,Consumer Staples,0.06,60000
+AMZN,Amazon.com Inc,Consumer Discretionary,0.08,80000
+AMT,American Tower Corp,Real Estate,0.05,50000
+GOOGL,Alphabet Inc,Communication Services,0.07,70000
