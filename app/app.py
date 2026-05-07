@@ -18,14 +18,20 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from ngfs.damage_functions import DamageFunctionName, get_damage_function, compare_at_temperature
-from ngfs.iiasa_client import IIASAClient, NGFS_SCENARIOS, NGFS_MODELS
+from ngfs.iiasa_client import NGFS_SCENARIOS, NGFS_MODELS
 from ngfs.portfolio import parse_portfolio, Portfolio
-from ngfs.scenario_engine import compute_drawdowns, compute_all_damage_functions
+from ngfs.scenario_engine import (
+    NGFS_TEMPERATURE_PATHWAYS,
+    build_temperature_trajectories,
+    compute_drawdowns,
+    compute_all_damage_functions,
+)
 from ngfs.visualization import (
     drawdown_heatmap,
     sensitivity_bands,
     damage_function_comparison,
     temperature_trajectory_chart,
+    portfolio_summary_chart,
 )
 
 
@@ -150,28 +156,13 @@ if portfolio is None:
     st.stop()
 
 
-# Initialize IIASA client and fetch data
+# Build temperature trajectories from built-in NGFS pathway data
 @st.cache_data
-def load_scenario_data():
-    client = IIASAClient()
-    cached = client.load_from_cache()
-    if cached is not None:
-        return cached, client
-    data = client.fetch_scenarios()
-    client.cache_to_parquet(data)
-    return data, client
+def load_temperature_trajectories(model: str, scenarios: list[str]) -> pd.DataFrame:
+    return build_temperature_trajectories(model=model, scenarios=scenarios)
 
 
-scenario_data, iiasa_client = load_scenario_data()
-
-# Filter to selected scenarios
-scenario_data_filtered = scenario_data[
-    (scenario_data["scenario"].isin(selected_scenarios))
-    & (scenario_data["model"] == selected_model)
-]
-
-# Get temperature trajectories
-temp_trajectories = iiasa_client.get_temperature_trajectories(scenario_data_filtered)
+temp_trajectories = load_temperature_trajectories(selected_model, selected_scenarios)
 
 
 # --- Portfolio summary ---
@@ -195,6 +186,9 @@ st.dataframe(
     use_container_width=True,
     hide_index=True,
 )
+
+# Portfolio allocation treemap
+st.plotly_chart(portfolio_summary_chart(portfolio), use_container_width=True)
 
 
 # --- Damage function comparison chart ---

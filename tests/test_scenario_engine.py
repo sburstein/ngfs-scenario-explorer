@@ -7,7 +7,9 @@ import pytest
 from ngfs.damage_functions import DamageFunctionName, get_damage_function
 from ngfs.portfolio import GICSSector, Portfolio, Position
 from ngfs.scenario_engine import (
+    NGFS_TEMPERATURE_PATHWAYS,
     DrawdownMatrix,
+    build_temperature_trajectories,
     compute_all_damage_functions,
     compute_drawdowns,
     compute_sector_drawdown,
@@ -200,3 +202,61 @@ class TestComputeAllDamageFunctions:
                 f"Expected significant spread in portfolio drawdowns across "
                 f"damage functions, got {spread_pct:.1f}%"
             )
+
+
+class TestNGFSTemperaturePathways:
+    """Tests for built-in NGFS temperature pathway data."""
+
+    def test_all_six_scenarios_present(self):
+        assert len(NGFS_TEMPERATURE_PATHWAYS) == 6
+
+    def test_net_zero_peaks_at_1_5(self):
+        nz = NGFS_TEMPERATURE_PATHWAYS["Net Zero 2050"]
+        assert nz["peak_temp_C"] == 1.5
+
+    def test_delayed_transition_peaks_at_1_8(self):
+        dt = NGFS_TEMPERATURE_PATHWAYS["Delayed Transition"]
+        assert dt["peak_temp_C"] == 1.8
+
+    def test_ndcs_reaches_2_5(self):
+        ndcs = NGFS_TEMPERATURE_PATHWAYS["Nationally Determined Contributions"]
+        assert ndcs["temp_2100_C"] == 2.5
+
+    def test_current_policies_reaches_3_plus(self):
+        cp = NGFS_TEMPERATURE_PATHWAYS["Current Policies"]
+        assert cp["temp_2100_C"] >= 3.0
+
+    def test_build_trajectories_shape(self):
+        df = build_temperature_trajectories()
+        assert "model" in df.columns
+        assert "scenario" in df.columns
+        assert "year" in df.columns
+        assert "temperature_anomaly_C" in df.columns
+        # 6 scenarios, years from 2025 to 2100 in steps of 5 = 16 years
+        assert len(df) == 6 * 16
+
+    def test_build_trajectories_filtered(self):
+        df = build_temperature_trajectories(
+            scenarios=["Net Zero 2050", "Current Policies"]
+        )
+        assert set(df["scenario"].unique()) == {"Net Zero 2050", "Current Policies"}
+
+    def test_trajectory_ordering(self):
+        """Current Policies should be warmer than Net Zero 2050 at 2100."""
+        df = build_temperature_trajectories()
+        df_2100 = df[df["year"] == 2100]
+        nz_temp = df_2100[df_2100["scenario"] == "Net Zero 2050"]["temperature_anomaly_C"].values[0]
+        cp_temp = df_2100[df_2100["scenario"] == "Current Policies"]["temperature_anomaly_C"].values[0]
+        assert cp_temp > nz_temp
+
+    def test_end_to_end_with_built_in_trajectories(self, sample_portfolio):
+        """Compute drawdowns using built-in trajectories."""
+        traj = build_temperature_trajectories()
+        matrix = compute_all_damage_functions(
+            portfolio=sample_portfolio,
+            temperature_trajectory=traj,
+            years=[2050],
+        )
+        # 6 scenarios * 3 damage functions = 18 results
+        assert len(matrix.results) == 18
+        assert all(r.portfolio_drawdown >= 0 for r in matrix.results)

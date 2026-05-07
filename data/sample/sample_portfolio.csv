@@ -1,14 +1,21 @@
 ticker,name,sector,weight,market_value
-XOM,Exxon Mobil Corp,Energy,0.08,80000
-CVX,Chevron Corp,Energy,0.06,60000
-NEE,NextEra Energy Inc,Utilities,0.07,70000
-JPM,JPMorgan Chase & Co,Financials,0.10,100000
-AAPL,Apple Inc,Technology,0.12,120000
-MSFT,Microsoft Corp,Technology,0.10,100000
-JNJ,Johnson & Johnson,Health Care,0.08,80000
-CAT,Caterpillar Inc,Industrials,0.07,70000
-LIN,Linde PLC,Materials,0.06,60000
-PG,Procter & Gamble Co,Consumer Staples,0.06,60000
-AMZN,Amazon.com Inc,Consumer Discretionary,0.08,80000
-AMT,American Tower Corp,Real Estate,0.05,50000
-GOOGL,Alphabet Inc,Communication Services,0.07,70000
+XOM,Exxon Mobil Corp,Energy,0.05,50000
+CVX,Chevron Corp,Energy,0.04,40000
+COP,ConocoPhillips,Energy,0.03,30000
+NEE,NextEra Energy Inc,Utilities,0.04,40000
+DUK,Duke Energy Corp,Utilities,0.03,30000
+JPM,JPMorgan Chase & Co,Financials,0.07,70000
+GS,Goldman Sachs Group,Financials,0.04,40000
+AAPL,Apple Inc,Technology,0.09,90000
+MSFT,Microsoft Corp,Technology,0.08,80000
+NVDA,NVIDIA Corp,Technology,0.06,60000
+JNJ,Johnson & Johnson,Health Care,0.05,50000
+UNH,UnitedHealth Group,Health Care,0.05,50000
+CAT,Caterpillar Inc,Industrials,0.04,40000
+HON,Honeywell International,Industrials,0.04,40000
+LIN,Linde PLC,Materials,0.04,40000
+FCX,Freeport-McMoRan,Materials,0.03,30000
+AMZN,Amazon.com Inc,Consumer Discretionary,0.07,70000
+TSLA,Tesla Inc,Consumer Discretionary,0.05,50000
+PG,Procter & Gamble Co,Consumer Staples,0.05,50000
+KO,Coca-Cola Co,Consumer Staples,0.05,50000

@@ -36,6 +36,120 @@ from ngfs.portfolio import (
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Built-in NGFS temperature pathways (NGFS Phase V published data)
+#
+# Each scenario is defined by its peak/2100 temperature anomaly and a
+# trajectory shape. These are used when the IIASA API is unavailable.
+# ---------------------------------------------------------------------------
+
+NGFS_TEMPERATURE_PATHWAYS: dict[str, dict] = {
+    "Net Zero 2050": {
+        "description": "Orderly transition, 1.5C aligned",
+        "peak_temp_C": 1.5,
+        "temp_2050_C": 1.5,
+        "temp_2100_C": 1.4,  # slight decline after peak due to net-negative emissions
+        "category": "orderly",
+    },
+    "Below 2C": {
+        "description": "Orderly transition, well below 2C",
+        "peak_temp_C": 1.7,
+        "temp_2050_C": 1.6,
+        "temp_2100_C": 1.7,
+        "category": "orderly",
+    },
+    "Divergent Net Zero": {
+        "description": "Disorderly, 1.5C with regional divergence",
+        "peak_temp_C": 1.6,
+        "temp_2050_C": 1.6,
+        "temp_2100_C": 1.5,
+        "category": "disorderly",
+    },
+    "Delayed Transition": {
+        "description": "Disorderly, sudden policy tightening post-2030",
+        "peak_temp_C": 1.8,
+        "temp_2050_C": 1.8,
+        "temp_2100_C": 1.7,
+        "category": "disorderly",
+    },
+    "Nationally Determined Contributions": {
+        "description": "Hot house world, NDC pledges only",
+        "peak_temp_C": 2.5,
+        "temp_2050_C": 1.9,
+        "temp_2100_C": 2.5,
+        "category": "hot_house",
+    },
+    "Current Policies": {
+        "description": "Hot house world, no additional policy action",
+        "peak_temp_C": 3.0,
+        "temp_2050_C": 2.0,
+        "temp_2100_C": 3.0,
+        "category": "hot_house",
+    },
+}
+
+
+def build_temperature_trajectories(
+    model: str = "REMIND-MAgPIE 3.3-4.8",
+    scenarios: list[str] | None = None,
+    start_year: int = 2025,
+    end_year: int = 2100,
+    step: int = 5,
+) -> pd.DataFrame:
+    """
+    Build temperature trajectory DataFrame from the built-in NGFS pathway data.
+
+    Generates smooth trajectories between the current ~1.2C anomaly and
+    the scenario-specific endpoints, using a power-law interpolation that
+    captures the expected trajectory shapes.
+
+    Args:
+        model: IAM model label to tag the data with.
+        scenarios: List of scenario names (defaults to all six).
+        start_year: First year in the trajectory.
+        end_year: Last year.
+        step: Year increment.
+
+    Returns:
+        DataFrame with columns: model, scenario, year, temperature_anomaly_C
+    """
+    if scenarios is None:
+        scenarios = list(NGFS_TEMPERATURE_PATHWAYS.keys())
+
+    years = list(range(start_year, end_year + 1, step))
+    current_temp = 1.2  # approximate 2025 anomaly above pre-industrial
+    records = []
+
+    for scenario in scenarios:
+        pathway = NGFS_TEMPERATURE_PATHWAYS.get(scenario)
+        if pathway is None:
+            logger.warning("Unknown scenario '%s', skipping", scenario)
+            continue
+
+        temp_2050 = pathway["temp_2050_C"]
+        temp_2100 = pathway["temp_2100_C"]
+
+        for year in years:
+            if year <= 2025:
+                temp = current_temp
+            elif year <= 2050:
+                # Interpolate from current to 2050 value
+                frac = (year - 2025) / 25.0
+                temp = current_temp + (temp_2050 - current_temp) * frac ** 0.8
+            else:
+                # Interpolate from 2050 to 2100 value
+                frac = (year - 2050) / 50.0
+                temp = temp_2050 + (temp_2100 - temp_2050) * frac ** 0.9
+            records.append({
+                "model": model,
+                "scenario": scenario,
+                "year": year,
+                "temperature_anomaly_C": round(temp, 3),
+            })
+
+    return pd.DataFrame(records)
+
+
 @dataclass
 class DrawdownResult:
     """Results for a single sector under a specific scenario + damage function."""

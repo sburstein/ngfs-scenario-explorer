@@ -18,6 +18,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from ngfs.damage_functions import DamageFunctionName, get_damage_function
+from ngfs.portfolio import Portfolio
 from ngfs.scenario_engine import DrawdownMatrix
 
 
@@ -333,5 +334,52 @@ def temperature_trajectory_chart(
                   annotation_text="2.0°C target")
 
     fig.update_layout(height=450)
+
+    return fig
+
+
+def portfolio_summary_chart(portfolio: Portfolio) -> go.Figure:
+    """
+    Create a sunburst or treemap showing portfolio allocation by sector.
+
+    Displays portfolio weights grouped by GICS sector, with individual
+    holdings shown as sub-segments. Color intensity reflects the sector's
+    climate risk multiplier.
+
+    Args:
+        portfolio: Validated portfolio.
+
+    Returns:
+        Plotly Figure with treemap visualization.
+    """
+    from ngfs.portfolio import SECTOR_CLIMATE_MULTIPLIERS
+
+    records = []
+    for pos in portfolio.positions:
+        records.append({
+            "ticker": pos.ticker,
+            "name": pos.name,
+            "sector": pos.gics_sector.value,
+            "weight": pos.weight,
+            "weight_pct": pos.weight * 100,
+            "climate_multiplier": SECTOR_CLIMATE_MULTIPLIERS.get(pos.gics_sector, 1.0),
+        })
+
+    df = pd.DataFrame(records)
+
+    fig = px.treemap(
+        df,
+        path=["sector", "ticker"],
+        values="weight_pct",
+        color="climate_multiplier",
+        color_continuous_scale="RdYlGn_r",
+        title="Portfolio Allocation by Sector (color = climate risk multiplier)",
+        hover_data={"name": True, "weight_pct": ":.1f", "climate_multiplier": ":.1f"},
+    )
+
+    fig.update_layout(
+        height=500,
+        coloraxis_colorbar={"title": "Climate<br>Risk<br>Multiplier"},
+    )
 
     return fig

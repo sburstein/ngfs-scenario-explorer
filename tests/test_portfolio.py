@@ -175,5 +175,7 @@ class TestParsePortfolio:
         sample = Path(__file__).parent.parent / "data" / "sample" / "sample_portfolio.csv"
         if sample.exists():
             portfolio = parse_portfolio(sample)
-            assert len(portfolio.positions) == 13
+            assert len(portfolio.positions) == 20
             assert abs(portfolio.total_weight - 1.0) < 0.01
+            # Should span at least 8 GICS sectors
+            assert portfolio.sector_count >= 8

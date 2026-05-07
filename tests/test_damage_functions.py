@@ -22,17 +22,17 @@ class TestKalkuhlWenz:
     def test_zero_warming_zero_damage(self):
         assert self.fn(0.0) == 0.0
 
-    def test_near_zero_at_2c(self):
-        """KW is very conservative — damage is ~0 at 2C (parabola vertex near 2.08C)."""
+    def test_at_2c(self):
+        """KW at 2C: 0.00266*2 + 0.00145*4 = ~1.1% GDP loss."""
         damage = self.fn(2.0)
         assert damage >= 0.0
-        assert damage < 0.01  # essentially zero at this temperature
+        assert abs(damage - 0.01112) < 0.002
 
-    def test_positive_at_3c(self):
+    def test_at_3c(self):
+        """KW at 3C: 0.00266*3 + 0.00145*9 = ~2.1% GDP loss."""
         damage = self.fn(3.0)
         assert damage > 0.0
-        # At 3C, KW gives modest damage
-        assert damage < 0.05
+        assert abs(damage - 0.02103) < 0.003
 
     def test_increases_with_temperature(self):
         d2 = self.fn(2.0)
@@ -52,16 +52,14 @@ class TestKalkuhlWenz:
         assert len(damages) == 4
         assert np.all(damages >= 0)
         assert np.all(damages <= 1)
-        # Should be monotonically non-decreasing (clamped at 0 for low temps)
-        assert np.all(np.diff(damages) >= 0)
-        # Above the vertex (~2.08C), should be strictly increasing
-        high_temps = np.array([3.0, 4.0, 5.0, 6.0])
-        high_damages = self.fn(high_temps)
-        assert np.all(np.diff(high_damages) > 0)
+        # Both terms are positive, so damage is strictly increasing for T > 0
+        assert np.all(np.diff(damages) > 0)
 
     def test_marginal_damage(self):
         md = self.fn.marginal_damage(3.0)
         assert isinstance(md, float)
+        # Marginal damage should be positive for all T > 0
+        assert md > 0
 
     def test_name_and_citation(self):
         assert "Kalkuhl" in self.fn.name

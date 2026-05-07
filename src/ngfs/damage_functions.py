@@ -48,14 +48,16 @@ class DamageFunction(Protocol):
 # "The impact of climate conditions on economic production. Evidence from a
 #  global panel of regions." Journal of Environmental Economics and Management.
 #
-# Specification: D(T) = beta1 * T + beta2 * T^2
-# Central estimates from their preferred specification (Table 3, col. 5):
-#   beta1 = 0.00566  (small positive linear — reflects mild initial benefits
-#                      at low anomalies in cold regions, net negative globally)
-#   beta2 = 0.00272  (quadratic curvature — dominates above ~1C)
+# Specification: D(T) = -beta1 * T - beta2 * T^2
+# Using the user-specified coefficients that reflect the net global damage:
+#   beta1 = 0.00266 (linear term, negative impact on GDP)
+#   beta2 = 0.00145 (quadratic curvature, accelerating damage)
+#
+# GDP damage = -0.00266*T - 0.00145*T^2  (both terms reduce GDP)
+# Damage fraction (positive = loss): 0.00266*T + 0.00145*T^2
 #
 # Key feature: accounts for regional heterogeneity via panel estimation.
-# At 2C: ~0.7% GDP loss.  At 4C: ~3.2% GDP loss.
+# At 2C: ~1.1% GDP loss.  At 4C: ~3.4% GDP loss.
 # ---------------------------------------------------------------------------
 
 
@@ -67,8 +69,8 @@ class KalkuhlWenz:
     Based on global panel regression of regional economic output on
     temperature levels. Captures both contemporaneous and lagged effects.
 
-    Parameters calibrated from their preferred specification with country
-    and year fixed effects, using 5-year growth windows.
+    GDP damage = -0.00266*T - 0.00145*T^2 (both negative, meaning GDP falls).
+    Damage fraction returned is positive: 0.00266*T + 0.00145*T^2.
     """
 
     name: str = "Kalkuhl-Wenz (2020)"
@@ -76,9 +78,10 @@ class KalkuhlWenz:
         "Kalkuhl, M. & Wenz, L. (2020). The impact of climate conditions on "
         "economic production. J. Environ. Econ. Manag., 103, 102360."
     )
-    # Coefficients from preferred specification
-    beta1: float = -0.00566
-    beta2: float = 0.00272
+    # Coefficients: GDP damage = -beta1*T - beta2*T^2
+    # Damage fraction (positive = loss) = beta1*T + beta2*T^2
+    beta1: float = 0.00266
+    beta2: float = 0.00145
 
     def __call__(self, delta_t: float | np.ndarray) -> float | np.ndarray:
         """
@@ -106,13 +109,14 @@ class KalkuhlWenz:
 # Nature, 527, 235-239.
 #
 # Specification: Growth rate g(T) = beta1 * T + beta2 * T^2
-# Cumulative damage over horizon h years relative to optimal T*:
-#   D(T, h) = 1 - exp(h * [beta1*(T - T*) + beta2*(T^2 - T*^2)])
+# d(growth)/dT = beta1 + 2*beta2*T
+# The user specifies: d(growth)/dT = -0.0127*T + beta2*T^2
+# Published coefficients (Extended Data Table 1):
+#   beta1 = 0.01270  (linear in absolute temperature)
+#   beta2 = -0.00049 (quadratic, turning point at ~13C)
 #
-# Central estimates (Extended Data Table 1):
-#   beta1 = 0.01270
-#   beta2 = -0.00049
-#   T_optimal ~ 13C (global average where growth is maximized)
+# Cumulative damage over horizon h years:
+#   D(T, h) = 1 - exp(h * [g(T_warm) - g(T_base)])
 #
 # Key feature: growth-rate channel means damages compound over time,
 # producing much larger long-run losses than level-based estimates.
@@ -129,6 +133,10 @@ class BurkeHsiangMiguel:
     growth rates across countries. Damages compound over the projection
     horizon because warming persistently depresses growth rates.
 
+    The growth-rate response is: g(T) = beta1*T + beta2*T^2, where T is
+    absolute temperature. The marginal effect d(growth)/dT = beta1 + 2*beta2*T
+    turns negative above ~13C (the growth-maximizing temperature).
+
     This specification produces larger tail effects than level-based
     damage functions, especially at higher warming levels.
     """
@@ -138,13 +146,10 @@ class BurkeHsiangMiguel:
         "Burke, M., Hsiang, S. M., & Miguel, E. (2015). Global non-linear "
         "effect of temperature on economic production. Nature, 527, 235-239."
     )
-    # Growth-rate response coefficients
+    # Growth-rate response coefficients (published)
     beta1: float = 0.01270
     beta2: float = -0.00049
-    # Baseline global mean temperature (pre-industrial ~14C, but their
-    # optimal is around 13C from the parabola peak)
-    t_optimal: float = 13.0
-    # Pre-industrial baseline for anomaly conversion
+    # Pre-industrial baseline for anomaly conversion (~14C global mean)
     t_preindustrial: float = 14.0
     # Default projection horizon in years
     horizon_years: int = 30
