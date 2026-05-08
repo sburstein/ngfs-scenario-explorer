@@ -206,7 +206,7 @@ def parse_portfolio(csv_path: str | Path) -> Portfolio:
     Expected CSV columns:
         - ticker: Stock ticker symbol (required)
         - name: Company name (required)
-        - sector: Sector label — will be mapped to GICS (required)
+        - sector: Sector label, will be mapped to GICS (required)
         - weight: Portfolio weight as decimal, e.g. 0.10 for 10% (required)
         - market_value: Market value in USD (optional)
 

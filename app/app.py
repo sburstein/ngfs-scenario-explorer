@@ -1,5 +1,5 @@
 """
-NGFS Scenario Explorer — Streamlit application.
+NGFS Scenario Explorer: Streamlit application.
 
 Upload a portfolio CSV, select NGFS scenarios and IAM models, toggle
 between damage functions, and see how estimated drawdowns shift by
@@ -232,7 +232,7 @@ else:
 tab1, tab2, tab3 = st.tabs(["Sector Heatmap", "Sensitivity Bands", "Raw Data"])
 
 with tab1:
-    st.subheader(f"Sector Drawdowns — {selected_dmg_fn_label} ({target_year})")
+    st.subheader(f"Sector Drawdowns: {selected_dmg_fn_label} ({target_year})")
     fig_hm = drawdown_heatmap(
         matrix,
         year=target_year,

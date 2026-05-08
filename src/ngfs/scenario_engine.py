@@ -229,7 +229,7 @@ class DrawdownMatrix:
         """
         Compare portfolio drawdowns across damage functions for each scenario.
 
-        This is the key analytical output — it shows how toggling the
+        This is the key analytical output. It shows how toggling the
         damage function shifts estimated drawdowns by 30-50%.
         """
         df = self.summary_by_scenario()

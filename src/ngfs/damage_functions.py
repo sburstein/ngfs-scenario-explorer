@@ -244,7 +244,7 @@ class HowardSterner:
 
         D(T) = alpha1 * T + alpha2 * T^2
 
-        With alpha1=0, this is purely quadratic — damages scale with T^2.
+        With alpha1=0, this is purely quadratic. Damages scale with T^2.
 
         Args:
             delta_t: Temperature anomaly (C above pre-industrial).

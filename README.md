@@ -4,26 +4,26 @@ A climate finance tool that overlays NGFS Phase V scenarios on investment portfo
 
 ## Key Insight
 
-Climate scenario analysis typically focuses on *which pathway* the world follows (Net Zero vs. Current Policies). But the choice of *damage function* — how temperature translates to economic loss — is equally consequential and far less discussed. This tool makes that visible.
+Climate scenario analysis typically focuses on *which pathway* the world follows (Net Zero vs. Current Policies). But the choice of *damage function* (how temperature translates to economic loss) is equally consequential and far less discussed. This tool makes that visible.
 
 Toggle between three well-known damage functions at any NGFS scenario and watch portfolio drawdown estimates shift by 30-50%:
 
 | Damage Function | At 3°C Anomaly | Character |
 |---|---|---|
-| Kalkuhl-Wenz (2020) | ~1.8% GDP | Conservative — panel regression on levels |
-| Howard-Sterner (2017) | ~10.3% GDP | Meta-analytic — includes catastrophic damages |
-| Burke-Hsiang-Miguel (2015) | ~14%+ GDP | Growth-rate channel — compounds over time |
+| Kalkuhl-Wenz (2020) | ~1.8% GDP | Conservative, panel regression on levels |
+| Howard-Sterner (2017) | ~10.3% GDP | Meta-analytic, includes catastrophic damages |
+| Burke-Hsiang-Miguel (2015) | ~14%+ GDP | Growth-rate channel, compounds over time |
 
 ## NGFS Phase V Scenarios
 
 Six pathways across three IAMs (REMIND-MAgPIE, GCAM 6.0, MESSAGEix-GLOBIOM):
 
-- **Net Zero 2050** — orderly, 1.5°C aligned
-- **Below 2°C** — orderly, <2°C
-- **Divergent Net Zero** — disorderly, regional divergence
-- **Delayed Transition** — disorderly, sudden post-2030 tightening
-- **NDCs** — hot house, ~2.5-3°C
-- **Current Policies** — hot house, ~3+°C
+- **Net Zero 2050**: orderly, 1.5°C aligned
+- **Below 2°C**: orderly, <2°C
+- **Divergent Net Zero**: disorderly, regional divergence
+- **Delayed Transition**: disorderly, sudden post-2030 tightening
+- **NDCs**: hot house, ~2.5-3°C
+- **Current Policies**: hot house, ~3+°C
 
 ## Setup
 
