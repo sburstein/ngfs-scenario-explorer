@@ -41,19 +41,34 @@ class GICSSector(str, Enum):
 # These scale the macro-level GDP damage to approximate sector-specific impacts.
 # Values > 1.0 indicate the sector is more exposed than the broad economy;
 # < 1.0 indicates relative insulation.
-# Calibrated from NGFS sectoral analysis and academic literature.
+#
+# Calibration sources (these are stylized estimates suitable for portfolio
+# stress-testing demonstration, not production risk modeling):
+#   - NGFS Phase III/IV sectoral GVA pathways (REMIND-MAgPIE), which show
+#     energy/utilities/materials taking outsized hits under transition scenarios
+#   - Battiston et al. (2017) "A climate stress-test of the financial system"
+#     Nature Climate Change, for transition-risk sector classifications
+#   - 2DII Paris Agreement Capital Transition Assessment for stranded-asset
+#     exposure by sector
+#   - IPCC AR6 WG2 Chapter 16 for physical-risk sector vulnerability
+#
+# To customize: override these values via the constructor of any function
+# that calls compute_sector_drawdown(), or fork this dict and pass it in.
+# Production use should derive multipliers from firm-level emissions
+# intensity, asset location, and revenue-segment exposure rather than
+# sector-level averages.
 SECTOR_CLIMATE_MULTIPLIERS: dict[GICSSector, float] = {
-    GICSSector.ENERGY: 2.5,  # Stranded assets, transition risk
-    GICSSector.MATERIALS: 1.8,  # Carbon-intensive, physical risk
-    GICSSector.INDUSTRIALS: 1.4,  # Supply chain disruption, capex exposure
-    GICSSector.CONSUMER_DISCRETIONARY: 1.1,  # Demand shifts
-    GICSSector.CONSUMER_STAPLES: 0.9,  # Agriculture exposure but defensive
-    GICSSector.HEALTH_CARE: 0.7,  # Relatively insulated, some heat stress
+    GICSSector.ENERGY: 2.5,  # Stranded fossil-fuel assets, transition risk
+    GICSSector.MATERIALS: 1.8,  # Cement/steel: high carbon intensity, physical risk
+    GICSSector.INDUSTRIALS: 1.4,  # Supply chain disruption, capex repricing
+    GICSSector.CONSUMER_DISCRETIONARY: 1.1,  # Demand shifts (autos, travel)
+    GICSSector.CONSUMER_STAPLES: 0.9,  # Agriculture exposure offset by defensive demand
+    GICSSector.HEALTH_CARE: 0.7,  # Relatively insulated; some heat-stress upside
     GICSSector.FINANCIALS: 1.3,  # Loan book exposure, underwriting risk
-    GICSSector.INFORMATION_TECHNOLOGY: 0.6,  # Low direct exposure
-    GICSSector.COMMUNICATION_SERVICES: 0.5,  # Low direct exposure
-    GICSSector.UTILITIES: 2.0,  # Transition-heavy, stranded generation
-    GICSSector.REAL_ESTATE: 1.6,  # Physical risk (flooding, storms)
+    GICSSector.INFORMATION_TECHNOLOGY: 0.6,  # Low direct operational exposure
+    GICSSector.COMMUNICATION_SERVICES: 0.5,  # Low direct operational exposure
+    GICSSector.UTILITIES: 2.0,  # Transition-heavy, stranded thermal generation
+    GICSSector.REAL_ESTATE: 1.6,  # Physical risk (flooding, storms, heat)
 }
 
 # Mapping from common sector name variants to canonical GICS sectors
